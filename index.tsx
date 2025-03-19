@@ -1,15 +1,10 @@
 import { Button, ContentUnavailableView, EmptyView, HStack, Image, List, Navigation, NavigationLink, NavigationStack, Path, Script, Section, Spacer, Text, VStack, useCallback, useEffect, useMemo, useState } from "scripting"
-import { TestEditableList } from "./EditableList/test"
 import { CrawlWidgetSizes } from "./Widget/crawlWidgetSizes"
 
 function Tests() {
   return <Section
     title="Tests"
   >
-    <NavigationLink
-      title="EditableList"
-      destination={<TestEditableList />}
-    />
     <NavigationLink
       title="Widget Sizes"
       destination={<CrawlWidgetSizes />}
