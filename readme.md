@@ -10,7 +10,7 @@ Each library lives in its own folder together with a module that should have a f
 
 ## Install
 
-Download the latest zip file from the release page and import it in the app.
+Download the latest zip file from the [releases page](https://github.com/schl3ck/scripting-app-lib/releases) and import it in the app.
 
 ## Preview a library module
 
