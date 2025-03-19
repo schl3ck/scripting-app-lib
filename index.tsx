@@ -1,10 +1,15 @@
 import { Button, ContentUnavailableView, EmptyView, HStack, Image, List, Navigation, NavigationLink, NavigationStack, Path, Script, Section, Spacer, Text, VStack, useCallback, useEffect, useMemo, useState } from "scripting"
 import { CrawlWidgetSizes } from "./Widget/crawlWidgetSizes"
+import { TestMultiSelectionsPickerView } from "./MultiSelectionsPicker/testMultiSelectionsPicker"
 
 function Tests() {
   return <Section
     title="Tests"
   >
+    <NavigationLink
+      title="Multi Selections Picker View"
+      destination={<TestMultiSelectionsPickerView />}
+    />
     <NavigationLink
       title="Widget Sizes"
       destination={<CrawlWidgetSizes />}
