@@ -1,4 +1,4 @@
-import { Device, HStack, Picker, Text, VStack, WidgetFamily, useMemo, useState, FunctionComponent, WidgetDisplaySize, useEffect, List, Section, Spacer } from "scripting"
+import { Device, HStack, Picker, Text, VStack, WidgetFamily, useMemo, useState, FunctionComponent, WidgetDisplaySize, useEffect, Section, Spacer } from "scripting"
 import { iOSSizes, iPadOSSizes, widgetSizes } from "./widgetSizes"
 
 const availableModels = ["current", "iOS", "iPadOS"] as const
@@ -9,15 +9,21 @@ type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
-export type WidgetParameters = {
+type AdditionalProps = Record<PropertyKey, unknown>
+
+export type WidgetParameters<T extends AdditionalProps> = {
   displaySize: WidgetDisplaySize,
   family: WidgetFamily,
-}
+} & T
 
-export function WidgetPreview({
+export function WidgetPreview<T extends AdditionalProps>({
   widget,
+  additionalProps = undefined,
+  sectionTitle = undefined,
 }: {
-  widget: FunctionComponent<WidgetParameters>,
+  widget: FunctionComponent<WidgetParameters<T>>,
+  additionalProps?: T,
+  sectionTitle?: string,
 }) {
   const AnyWidget = widget as FunctionComponent<any>
 
@@ -83,7 +89,9 @@ export function WidgetPreview({
   }, [calculatedModel, calculatedSize, widgetFamily])
 
   return <>
-    <Section>
+    <Section
+      title={sectionTitle}
+      >
       <HStack
         padding={{ horizontal: 5 }}
         background="systemBackground"
@@ -153,6 +161,7 @@ export function WidgetPreview({
             displaySize={calculatedWidgetSize}
             frame={calculatedWidgetSize}
             scaleEffect={scale}
+            {...additionalProps}
           />
         </HStack>
         <Spacer minLength={0} />

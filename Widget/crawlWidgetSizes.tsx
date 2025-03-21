@@ -2,12 +2,16 @@ import { Button, Divider, EmptyView, HStack, List, NavigationStack, Path, Progre
 import { getWidgetSizes } from "./widgetSizes"
 import { WidgetPreview } from "./widgetPreview"
 
+const url = "https://developer.apple.com/design/human-interface-guidelines/widgets"
+
 function SimpleWidget({
   displaySize,
   family,
+  title,
 }: {
   displaySize: WidgetDisplaySize,
   family: WidgetFamily,
+  title: string,
 }) {
   return <VStack
     frame={displaySize}
@@ -15,10 +19,12 @@ function SimpleWidget({
     foregroundStyle="white"
     padding
   >
+    <Text fontWeight="bold" font={20}>
+      {title}
+    </Text>
     <Text>
       {family}
     </Text>
-    <Divider />
     <Text>{displaySize.width}*{displaySize.height}</Text>
   </VStack>
 }
@@ -142,6 +148,10 @@ export function CrawlWidgetSizes() {
 
       <WidgetPreview
         widget={SimpleWidget}
+        additionalProps={{
+          title: "Widget Preview"
+        }}
+        sectionTitle="Widget Preview"
       />
     </List>
   </NavigationStack>
@@ -161,8 +171,6 @@ const widgetFamilyMap: Record<string, WidgetFamily> = {
 }
 
 async function crawlWidgetSizes(status: (msg: string) => void) {
-  const url = "https://developer.apple.com/design/human-interface-guidelines/widgets"
-
   status("loading url")
 
   const wv = new WebViewController()
