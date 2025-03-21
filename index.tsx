@@ -4,7 +4,7 @@ import { TestMultiSelectionsPickerView } from "./MultiSelectionsPicker/testMulti
 
 function Tests() {
   return <Section
-    title="Tests"
+    title="Tests and Examples"
   >
     <NavigationLink
       title="Multi Selections Picker View"
@@ -35,42 +35,58 @@ function MainView() {
         </Button>
       }}
     >
-      <HStack
-        contentShape={"rect"}
-        onTapGesture={async () => {
-          Navigation.present(<Folder
-            path={Script.directory}
-            select="file"
-            onSelection={(p) => {
-              setFrom(p)
-              dismiss()
-            }}
-            cancel={dismiss}
-          />)
-        }}
+      <Section
+        footer={
+          <Text>
+            Select a library module and a destination folder to create a symbolic link.
+          </Text>
+        }
       >
-        <Text>Lib</Text>
-        <Spacer />
-        <Text>{from.replace(Script.directory + "/", "")}</Text>
-      </HStack>
-      <HStack
-        contentShape={"rect"}
-        onTapGesture={async () => {
-          Navigation.present(<Folder
-            path={parentFolder}
-            select="folder"
-            onSelection={(p) => {
-              setTo(p)
-              dismiss()
-            }}
-            cancel={dismiss}
-          />)
-        }}
-      >
-        <Text>Target</Text>
-        <Spacer />
-        <Text>{to.replace(parentFolder + "/", "")}</Text>
-      </HStack>
+        <HStack
+          contentShape={"rect"}
+          onTapGesture={async () => {
+            Navigation.present(<Folder
+              path={Script.directory}
+              select="file"
+              onSelection={(p) => {
+                setFrom(p)
+                dismiss()
+              }}
+              cancel={dismiss}
+            />)
+          }}
+        >
+          <Text>Lib</Text>
+          <Spacer />
+          <Text>{from.replace(Script.directory + "/", "")}</Text>
+          <Image
+            systemName="chevron.right"
+            foregroundStyle="tertiaryLabel"
+          />
+        </HStack>
+        <HStack
+          contentShape={"rect"}
+          onTapGesture={async () => {
+            Navigation.present(<Folder
+              path={parentFolder}
+              select="folder"
+              onSelection={(p) => {
+                setTo(p)
+                dismiss()
+              }}
+              cancel={dismiss}
+            />)
+          }}
+        >
+          <Text>Target</Text>
+          <Spacer />
+          <Text>{to.replace(parentFolder + "/", "")}</Text>
+          <Image
+            systemName="chevron.right"
+            foregroundStyle="tertiaryLabel"
+          />
+        </HStack>
+      </Section>
 
       <Section>
         <Button
@@ -212,6 +228,7 @@ function Folder({
           >
             <Image systemName="doc.fill" />
             <Text>{Path.basename(f)}</Text>
+            <Spacer />
           </HStack>
         )
       }

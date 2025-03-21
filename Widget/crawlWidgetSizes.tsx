@@ -37,9 +37,14 @@ export function CrawlWidgetSizes() {
     <List
       navigationTitle="Widget Sizes"
       navigationBarTitleDisplayMode="inline"
-    // frame={{ height: Infinity }}
     >
-      <Section>
+      <Section
+        footer={
+          <Text>
+            Loads the widget size data from {url}
+          </Text>
+        }
+      >
         <Button
           title="Crawl widget sizes"
           systemImage="tray.and.arrow.down"
@@ -96,7 +101,13 @@ export function CrawlWidgetSizes() {
         }
       </Section>
 
-      <Section>
+      <Section
+        footer={
+          <Text>
+            Display all widget families and their sizes for the current device
+          </Text>
+        }
+      >
         <Button
           title="Get sizes for current device"
           action={() => {
