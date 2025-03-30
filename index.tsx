@@ -48,7 +48,7 @@ function MainView() {
             Navigation.present(<Folder
               path={Script.directory}
               select="file"
-              onSelection={(p) => {
+              onSelection={(p, dismiss) => {
                 setFrom(p)
                 dismiss()
               }}
@@ -70,7 +70,7 @@ function MainView() {
             Navigation.present(<Folder
               path={parentFolder}
               select="folder"
-              onSelection={(p) => {
+              onSelection={(p, dismiss) => {
                 setTo(p)
                 dismiss()
               }}
@@ -126,12 +126,13 @@ function Folder({
   select,
 }: {
   path: string,
-  onSelection: (path: string) => void,
-  cancel: () => void,
+  onSelection: (path: string, dismiss: ReturnType<typeof Navigation["useDismiss"]>) => void,
+  cancel: (dismiss: ReturnType<typeof Navigation["useDismiss"]>) => void,
   select: "folder" | "file",
 }) {
   const [content, setContent] = useState<string[]>([])
   const [loaded, setLoaded] = useState(false)
+  const dismiss = Navigation.useDismiss()
 
   const load = useCallback(async () => {
     setContent(
@@ -169,12 +170,12 @@ function Folder({
         confirmationAction: select === "folder"
           ? <Button
             title={"Select here"}
-            action={() => onSelection(path)}
+            action={() => onSelection(path, dismiss)}
           />
           : <EmptyView />,
         cancellationAction: <Button
           title={"Cancel"}
-          action={cancel}
+          action={() => cancel(dismiss)}
         />,
         topBarTrailing: <Button
           systemImage="plus"
@@ -207,8 +208,8 @@ function Folder({
           destination={
             <Folder
               path={f}
-              onSelection={onSelection}
-              cancel={cancel}
+              onSelection={(p) => onSelection(p, dismiss)}
+              cancel={() => cancel(dismiss)}
               select={select}
             />
           }
@@ -223,7 +224,7 @@ function Folder({
         files.map(f =>
           <HStack
             contentShape={"rect"}
-            onTapGesture={() => onSelection(f)}
+            onTapGesture={() => onSelection(f, dismiss)}
             disabled={select === "folder"}
           >
             <Image systemName="doc.fill" />
