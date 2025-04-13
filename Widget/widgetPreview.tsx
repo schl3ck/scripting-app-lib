@@ -1,9 +1,26 @@
-import { Device, HStack, Picker, Text, VStack, WidgetFamily, useMemo, useState, FunctionComponent, WidgetDisplaySize, useEffect, Section, Spacer } from "scripting"
+import {
+  Device,
+  HStack,
+  Picker,
+  Text,
+  VStack,
+  WidgetFamily,
+  useMemo,
+  useState,
+  FunctionComponent,
+  WidgetDisplaySize,
+  useEffect,
+  Section,
+  Spacer,
+  ZStack,
+} from "scripting"
 import { iOSSizes, iPadOSSizes, widgetSizes } from "./widgetSizes"
 
 const availableModels = ["current", "iOS", "iPadOS"] as const
 
-type Partial<T extends object, Keys extends keyof T> = { [P in Exclude<keyof T, Keys>]: T[P] } & { [P in Keys]?: T[P] }
+type Partial<T extends object, Keys extends keyof T> = { [P in Exclude<keyof T, Keys>]: T[P] } & {
+  [P in Keys]?: T[P]
+}
 
 type Prettify<T> = {
   [K in keyof T]: T[K]
@@ -12,31 +29,37 @@ type Prettify<T> = {
 type AdditionalProps = Record<PropertyKey, unknown>
 
 export type WidgetParameters<T extends AdditionalProps> = {
-  displaySize: WidgetDisplaySize,
-  family: WidgetFamily,
+  displaySize: WidgetDisplaySize
+  family: WidgetFamily
 } & T
 
 export function WidgetPreview<T extends AdditionalProps>({
   widget,
   additionalProps = undefined,
   sectionTitle = undefined,
+  pickerAlignment = undefined,
 }: {
-  widget: FunctionComponent<WidgetParameters<T>>,
-  additionalProps?: T,
-  sectionTitle?: string,
+  widget: FunctionComponent<WidgetParameters<T>>
+  additionalProps?: T
+  sectionTitle?: string
+  pickerAlignment?: "horizontal" | "vertical"
 }) {
   const AnyWidget = widget as FunctionComponent<any>
 
-  const [model, setModel] = useState<typeof availableModels[number]>("current")
+  const [model, setModel] = useState<(typeof availableModels)[number]>("current")
 
-  const { availableDeviceSizes, calculatedModel } = useMemo(() => {
+  const { currentModel, availableDeviceSizes, calculatedModel } = useMemo(() => {
     let m = model
     const currentModel = Device.isiPhone ? "iOS" : "iPadOS"
     if (m === "current") {
       m = currentModel
     }
     return {
-      availableDeviceSizes: [...(m === currentModel ? ["current"] : []), ...Object.keys(widgetSizes[m])],
+      currentModel,
+      availableDeviceSizes: [
+        ...(m === currentModel ? ["current"] : []),
+        ...Object.keys(widgetSizes[m]),
+      ],
       calculatedModel: m,
     }
   }, [model])
@@ -50,22 +73,16 @@ export function WidgetPreview<T extends AdditionalProps>({
     }
   }, [availableDeviceSizes])
 
-  const { availableTypes, calculatedSize } = useMemo(() => {
-    const map: Prettify<Partial<Record<
-      string,
-      iOSSizes | iPadOSSizes
-    >, iOSSizes | iPadOSSizes>> = {
-        current: `${Device.screen.width}x${Device.screen.height}` as iOSSizes | iPadOSSizes,
-        smallest: (availableDeviceSizes[0] === "current" ? availableDeviceSizes[1] : availableDeviceSizes[0]) as iOSSizes | iPadOSSizes,
-        largest: availableDeviceSizes[availableDeviceSizes.length - 1] as iOSSizes | iPadOSSizes
-      }
-    const calculatedSize = map[size] ?? size as iOSSizes | iPadOSSizes
+  const { availableTypes, calculatedSize, currentSize } = useMemo(() => {
+    const currentSize = `${Device.screen.width}x${Device.screen.height}` as iOSSizes | iPadOSSizes
+    const calculatedSize = size === "current" ? currentSize : (size as iOSSizes | iPadOSSizes)
     return {
       availableTypes: Object.keys(
         // @ts-ignore-next
-        widgetSizes[calculatedModel][calculatedSize]
+        widgetSizes[calculatedModel][calculatedSize],
       ) as WidgetFamily[],
       calculatedSize,
+      currentSize,
     }
   }, [model, availableDeviceSizes, size])
 
@@ -80,93 +97,105 @@ export function WidgetPreview<T extends AdditionalProps>({
 
   const { calculatedWidgetSize, scale } = useMemo(() => {
     // @ts-ignore-next
-    const calculatedWidgetSize = widgetSizes[calculatedModel][calculatedSize][widgetFamily] as { width: number, height: number }
+    const calculatedWidgetSize = widgetSizes[calculatedModel][calculatedSize][widgetFamily] as {
+      width: number
+      height: number
+    }
     const scale = Math.min(1, (Device.screen.width - 85) / calculatedWidgetSize.width)
     return {
       calculatedWidgetSize,
-      scale
+      scale,
     }
   }, [calculatedModel, calculatedSize, widgetFamily])
 
-  return <>
-    <Section
-      title={sectionTitle}
-      >
-      <HStack
-        padding={{ horizontal: 5 }}
-        background="systemBackground"
-        contentShape="rect"
-      >
-        <Picker
-          title="Model"
-          value={model}
-          onChanged={(value: string) => setModel(value as typeof model)}
-        >
-          {
-            availableModels.map(m =>
-              <Text tag={m}>{m}</Text>
-            )
-          }
-        </Picker>
-        <Picker
-          title="Device Size"
-          value={size}
-          onChanged={(value: string) => setSize(value as typeof size)}
-        >
-          {
-            availableDeviceSizes.map(s =>
-              <Text tag={s}>{s}</Text>
-            )
-          }
-        </Picker>
-        <Picker
-          title="Widget Family"
-          value={widgetFamily}
-          onChanged={(value: string) => setWidgetFamily(value as WidgetFamily)}
-        >
-          {
-            availableTypes.map(t =>
-              <Text tag={t}>{t}</Text>
-            )
-          }
-        </Picker>
-      </HStack>
-    </Section>
+  if (!pickerAlignment) {
+    pickerAlignment = Device.isiPhone ? "vertical" : "horizontal"
+  }
 
-    <Section>
-      <HStack
-        listRowBackground={
-          <VStack
-            background="secondarySystemBackground"
-          />
-        }
-        frame={{
-          height: calculatedWidgetSize.height * scale,
-        }}
+  const [hash, setHash] = useState(() => UUID.string())
+
+  useEffect(() => {
+    setHash(UUID.string())
+  }, [additionalProps])
+
+  const pickers = (
+    <>
+      <Picker
+        title="Model"
+        value={model}
+        onChanged={(value: string) => setModel(value as typeof model)}
       >
-        <Spacer minLength={0} />
+        {availableModels.map((m) => (
+          <Text tag={m}>{m + (m === "current" ? ` (${currentModel})` : "")}</Text>
+        ))}
+      </Picker>
+      <Picker
+        title="Device Size"
+        value={size}
+        onChanged={(value: string) => setSize(value as typeof size)}
+      >
+        {availableDeviceSizes.map((s) => (
+          <Text tag={s}>{s + (s === "current" ? ` (${currentSize})` : "")}</Text>
+        ))}
+      </Picker>
+      <Picker
+        title="Widget Family"
+        value={widgetFamily}
+        onChanged={(value: string) => setWidgetFamily(value as WidgetFamily)}
+      >
+        {availableTypes.map((t) => (
+          <Text tag={t}>{t}</Text>
+        ))}
+      </Picker>
+    </>
+  )
+
+  return (
+    <>
+      <Section title={sectionTitle}>
+        {pickerAlignment === "horizontal" ? (
+          <HStack
+            padding={{ horizontal: 5 }}
+            background="systemBackground"
+            contentShape="rect"
+          >
+            {pickers}
+          </HStack>
+        ) : (
+          pickers
+        )}
+      </Section>
+
+      <Section>
         <HStack
-          clipShape={{
-            type: "rect",
-            cornerRadius: 20,
-            style: "continuous",
-          }}
-          shadow={{
-            color: "systemGray",
-            radius: 3,
+          listRowBackground={<VStack background="secondarySystemBackground" />}
+          frame={{
+            height: calculatedWidgetSize.height * scale,
           }}
         >
-          <AnyWidget
-            family={widgetFamily}
-            displaySize={calculatedWidgetSize}
-            frame={calculatedWidgetSize}
-            scaleEffect={scale}
-            {...additionalProps}
-          />
+          <Spacer minLength={0} />
+          <ZStack scaleEffect={scale}>
+            <AnyWidget
+              key={hash}
+              family={widgetFamily}
+              displaySize={calculatedWidgetSize}
+              {...additionalProps}
+              frame={calculatedWidgetSize}
+              clipShape={{
+                type: "rect",
+                cornerRadius:
+                  widgetFamily === "accessoryCircular" ? calculatedWidgetSize.width / 2 : 20,
+                style: "continuous",
+              }}
+              shadow={{
+                color: "systemGray",
+                radius: 3,
+              }}
+            />
+          </ZStack>
+          <Spacer minLength={0} />
         </HStack>
-        <Spacer minLength={0} />
-      </HStack>
-    </Section>
-  </>
+      </Section>
+    </>
+  )
 }
-
