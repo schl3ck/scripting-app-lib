@@ -126,6 +126,13 @@ export class ParsedColor {
    * @param red red channel in the range 0 - 255
    * @param green green channel in the range 0 - 255
    * @param blue blue channel in the range 0 - 255
+   */
+  constructor(red: number, green: number, blue: number)
+  /**
+   * Create a parsed color by specifying each channel
+   * @param red red channel in the range 0 - 255
+   * @param green green channel in the range 0 - 255
+   * @param blue blue channel in the range 0 - 255
    * @param alpha alpha channel in the range 0 - 1
    */
   constructor(red: number, green: number, blue: number, alpha: number)
@@ -207,16 +214,16 @@ export class ParsedColor {
 
   /**
    * Set one or more channels to a new value and return the this instance for chaining
-   * @param options the channel(s) to set
+   * @param channels the channel(s) to set
    * @returns this with the new colors set
    */
-  set(options: { red?: number; green?: number; blue?: number; alpha?: number }): this {
+  set(channels: { red?: number; green?: number; blue?: number; alpha?: number }): this {
     const allowedKeys = new Set(["red", "green", "blue", "alpha"])
-    for (const [key, value] of Object.entries(options)) {
+    for (const [key, value] of Object.entries(channels)) {
       if (!allowedKeys.has(key)) {
         throw new Error(`Property "${key}" cannot be set`)
       }
-      this[key as keyof typeof options] = value
+      this[key as keyof typeof channels] = value
     }
     return this
   }
