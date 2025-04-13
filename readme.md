@@ -41,5 +41,7 @@ If you add a library then please also include an additional file with a preview 
 
 This is an unordered list of ideas. They might be implemented, but there is no warranty that they will.
 
+* Better "done" notification after linking the lib
 * Updater for Scripts
 * Dependency checking when linking a library
+* Show all linked libs & remove with dependency checking
