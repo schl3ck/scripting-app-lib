@@ -35,12 +35,11 @@ Breaking changes will only be made in major version changes. New libraries can b
 
 Contributions are welcome! Just create a pull request with your additions.
 
-If you add a library then please also include an additional file with a preview of the library. In the best case the preview should show all features that the library offers. This way not only you can test that everything works but there is also an example for users consuming your library.
+If you add a library then please also include an additional file with a preview of the library or at least a readme that can be viewed in the running script (see [ScriptUpdater](./ScriptUpdater/scriptUpdaterDescription.tsx) for an example). In the best case the preview should show all features that the library offers. This way not only you can test that everything works but there is also an example for users consuming your library.
 
 ## Backlog of ideas
 
 This is an unordered list of ideas. They might be implemented, but there is no warranty that they will.
 
-* Updater for Scripts
 * Dependency checking when linking a library
 * Show all linked libs & remove with dependency checking
