@@ -430,7 +430,7 @@ function UpdateFinished({ version }: { version: string }) {
   return (
     <ContentUnavailableView
       systemImage="sparkles"
-      title={"Update to " + version + " installed!"}
+      title={"Update " + version + " installed!"}
       description="Please close this script, rebuild all scripts (in the settings of Scripting) and start this script again to use the new version."
       background="secondarySystemBackground"
     />
