@@ -1,4 +1,27 @@
-import { Button, ContentUnavailableView, EmptyView, HStack, Image, List, Navigation, NavigationLink, NavigationStack, Path, Script, Section, Spacer, Text, VStack, useCallback, useEffect, useMemo, useState } from "scripting"
+import {
+  Button,
+  ContentUnavailableView,
+  EmptyView,
+  HStack,
+  Image,
+  List,
+  Navigation,
+  NavigationLink,
+  NavigationStack,
+  Path,
+  ProgressView,
+  Script,
+  Section,
+  Spacer,
+  Text,
+  VStack,
+  VirtualNode,
+  ZStack,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "scripting"
 import { CrawlWidgetSizes } from "./Widget/crawlWidgetSizes"
 import { TestMultiSelectionsPickerView } from "./MultiSelectionsPicker/testMultiSelectionsPicker"
 
@@ -34,6 +57,21 @@ function MainView() {
           <Text>Close</Text>
         </Button>
       }}
+        overlay={
+          linkCreated ? (
+            <TemporaryPopover>
+              <VStack
+                font={"title"}
+                spacing={5}
+              >
+                <Image systemName="checkmark" />
+                <Text>Done</Text>
+              </VStack>
+            </TemporaryPopover>
+          ) : (
+            <EmptyView />
+          )
+        }
     >
       <Section
         footer={
@@ -97,18 +135,6 @@ function MainView() {
             setTimeout(() => setLinkCreated(false), 1000)
           }}
           disabled={!from || !to}
-          alert={{
-            title: "",
-            message: <VStack
-              font={"largeTitle"}
-            >
-              <Image systemName="checkmark" />
-              <Text>Done</Text>
-            </VStack>,
-            actions: <EmptyView />,
-            onChanged: setLinkCreated,
-            isPresented: linkCreated,
-          }}
         >
           <Text>Create Link</Text>
         </Button>
@@ -117,6 +143,27 @@ function MainView() {
       <Tests />
     </List>
   </NavigationStack>
+}
+
+function TemporaryPopover({ children }: { children: VirtualNode }) {
+  return (
+    <ZStack
+      frame={{
+        alignment: "center",
+        minHeight: 50,
+        minWidth: 50,
+      }}
+      padding={20}
+      background={"thinMaterial"}
+      clipShape={{
+        type: "rect",
+        cornerRadius: 15,
+        style: "continuous",
+      }}
+    >
+      {children}
+    </ZStack>
+  )
 }
 
 function Folder({
