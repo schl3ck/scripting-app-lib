@@ -38,7 +38,7 @@ import {
 } from "./ScriptUpdater/scriptUpdater"
 
 const versionsUrl = "https://github.com/schl3ck/scripting-app-lib/releases"
-const currentVersion = "1.4"
+const currentVersion = "1.4.1"
 
 function Tests() {
   return (
@@ -431,7 +431,7 @@ function UpdateFinished({ version }: { version: string }) {
     <ContentUnavailableView
       systemImage="sparkles"
       title={"Update to " + version + " installed!"}
-      description="Please close this script, reload all scripts (with the menu at the top left) and start this script again to use the new version."
+      description="Please close this script, rebuild all scripts (in the settings of Scripting) and start this script again to use the new version."
       background="secondarySystemBackground"
     />
   )
