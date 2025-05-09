@@ -1,5 +1,6 @@
 import {
   Button,
+  EmptyView,
   HStack,
   Image,
   List,
@@ -43,8 +44,15 @@ export function MultiSelectionsPickerView({
 
   return (
     <NavigationStack>
-      <List onDisappear={() => onChanged(Array.from(selected))}>
-        <Section>
+      <List
+        onDisappear={() => onChanged(Array.from(selected))}
+        listSectionSpacing={16}
+      >
+        <Section
+          listRowBackground={
+            <EmptyView />
+          }
+        >
           <HStack>
             <Spacer minLength={0} />
             <Button

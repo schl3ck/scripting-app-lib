@@ -91,7 +91,7 @@ function MainView() {
               </VStack>
             </TemporaryPopover>
           ) : updatedToVersion ? (
-              <UpdateFinished version={updatedToVersion} />
+            <UpdateFinished version={updatedToVersion} />
           ) : (
             <EmptyView />
           )
@@ -102,54 +102,50 @@ function MainView() {
             <Text>Select a library module and a destination folder to create a symbolic link.</Text>
           }
         >
-          <HStack
-            contentShape={"rect"}
-            onTapGesture={async () => {
-              Navigation.present(
-                <Folder
-                  path={Script.directory}
-                  select="file"
-                  onSelection={(p, dismiss) => {
-                    setFrom(p)
-                    dismiss()
-                  }}
-                  cancel={dismiss}
-                />,
-              )
-            }}
+          <NavigationLink
+            destination={
+              <Folder
+                key={"libDestination"}
+                path={Script.directory}
+                select="file"
+                onSelection={(p) => {
+                  setFrom(p)
+                }}
+                tip={"Select a file to link"}
+              />
+            }
           >
-            <Text>Lib</Text>
-            <Spacer />
-            <Text>{from.replace(Script.directory + "/", "")}</Text>
-            <Image
-              systemName="chevron.right"
-              foregroundStyle="tertiaryLabel"
-            />
-          </HStack>
-          <HStack
-            contentShape={"rect"}
-            onTapGesture={async () => {
-              Navigation.present(
-                <Folder
-                  path={parentFolder}
-                  select="folder"
-                  onSelection={(p, dismiss) => {
-                    setTo(p)
-                    dismiss()
-                  }}
-                  cancel={dismiss}
-                />,
-              )
-            }}
+            <HStack>
+              <Text>Select a Lib File</Text>
+              <Spacer />
+              <Text
+                foregroundStyle={"secondaryLabel"}
+                font={"callout"}
+              >{from.replace(Script.directory + "/", "")}</Text>
+            </HStack>
+          </NavigationLink>
+          <NavigationLink
+            destination={
+              <Folder
+                key={"targetDestination"}
+                path={parentFolder}
+                select="folder"
+                topLevel
+                onSelection={(p) => {
+                  setTo(p)
+                }}
+              />
+            }
           >
-            <Text>Target</Text>
-            <Spacer />
-            <Text>{to.replace(parentFolder + "/", "")}</Text>
-            <Image
-              systemName="chevron.right"
-              foregroundStyle="tertiaryLabel"
-            />
-          </HStack>
+            <HStack>
+              <Text>Select a Target Folder</Text>
+              <Spacer />
+              <Text
+                foregroundStyle={"secondaryLabel"}
+                font={"callout"}
+              >{to.replace(parentFolder + "/", "")}</Text>
+            </HStack>
+          </NavigationLink>
         </Section>
 
         <Section>
@@ -198,17 +194,19 @@ function TemporaryPopover({ children }: { children: VirtualNode }) {
 function Folder({
   path,
   onSelection,
-  cancel,
   select,
+  topLevel = false,
+  tip,
 }: {
   path: string
-  onSelection: (path: string, dismiss: ReturnType<(typeof Navigation)["useDismiss"]>) => void
-  cancel: (dismiss: ReturnType<(typeof Navigation)["useDismiss"]>) => void
+  onSelection: (path: string) => void
   select: "folder" | "file"
+  topLevel?: boolean
+  tip?: string
 }) {
+  const dismiss = Navigation.useDismiss()
   const [content, setContent] = useState<string[]>([])
   const [loaded, setLoaded] = useState(false)
-  const dismiss = Navigation.useDismiss()
 
   const load = useCallback(async () => {
     setContent((await FileManager.readDirectory(path)).map((i) => Path.join(path, i)))
@@ -238,85 +236,111 @@ function Folder({
   }, [content])
 
   return (
-    <NavigationStack>
-      <List
-        navigationTitle={Path.basename(path)}
-        toolbar={{
-          confirmationAction:
-            select === "folder" ? (
-              <Button
-                title={"Select here"}
-                action={() => onSelection(path, dismiss)}
-              />
-            ) : (
-              <EmptyView />
-            ),
-          cancellationAction: (
+    <List
+      navigationTitle={Path.basename(path)}
+      toolbar={{
+        bottomBar: select === "folder" && !topLevel ?
+          <HStack>
+            <Spacer />
             <Button
-              title={"Cancel"}
-              action={() => cancel(dismiss)}
-            />
-          ),
-          topBarTrailing: (
-            <Button
-              systemImage="plus"
-              title={""}
-              action={async () => {
-                const name = await Dialog.prompt({
-                  title: "New Folder",
-                  cancelLabel: "Cancel",
-                  confirmLabel: "Create",
-                })
-                if (name) {
-                  const folder = Path.join(path, name)
-                  FileManager.createDirectorySync(folder)
-                  setContent([folder, ...content])
-                }
+              action={() => {
+                dismiss()
+                onSelection(path)
               }}
-            />
-          ),
-        }}
-        overlay={
-          content.length === 0 || !loaded ? (
-            <ContentUnavailableView
-              title={loaded ? "No entries" : "Loading"}
-              systemImage={loaded ? "folder" : "progress.indicator"}
-            />
-          ) : (
-            <EmptyView />
-          )
-        }
-      >
-        {folders.map((f) => (
-          <NavigationLink
-            destination={
-              <Folder
-                path={f}
-                onSelection={(p) => onSelection(p, dismiss)}
-                cancel={() => cancel(dismiss)}
-                select={select}
-              />
-            }
-          >
-            <HStack>
-              <Image systemName="folder.fill" />
-              <Text>{Path.basename(f)}</Text>
-            </HStack>
-          </NavigationLink>
-        ))}
-        {files.map((f) => (
-          <HStack
-            contentShape={"rect"}
-            onTapGesture={() => onSelection(f, dismiss)}
-            disabled={select === "folder"}
-          >
-            <Image systemName="doc.fill" />
-            <Text>{Path.basename(f)}</Text>
+            >
+              <HStack>
+                <Image systemName={"link"} />
+                <Text>Link lib file here</Text>
+              </HStack>
+            </Button>
             <Spacer />
           </HStack>
-        ))}
-      </List>
-    </NavigationStack>
+          : undefined,
+        topBarTrailing: <Button
+          systemImage="folder.badge.plus"
+          title={"New Folder"}
+          action={async () => {
+            const name = await Dialog.prompt({
+              title: "New Folder",
+              cancelLabel: "Cancel",
+              confirmLabel: "Create",
+            })
+            if (name) {
+              const folder = Path.join(path, name)
+              FileManager.createDirectorySync(folder)
+              setContent([folder, ...content])
+            }
+          }}
+        />,
+      }}
+      overlay={
+        content.length === 0 || !loaded ? (
+          <ContentUnavailableView
+            title={loaded ? "No entries" : "Loading"}
+            systemImage={loaded ? "folder" : "progress.indicator"}
+          />
+        ) : (
+          <EmptyView />
+        )
+      }
+      contentMargins={
+        tip != null
+          ? {
+            edges: 'top',
+            insets: 0,
+          }
+          : undefined
+      }
+    >
+      {tip != null
+        ? <Section footer={
+          <Text>{tip}</Text>
+        }>
+          <EmptyView />
+        </Section>
+        : null}
+
+      {folders.map((f) => (
+        <NavigationLink
+          destination={
+            <Folder
+              path={f}
+              tip={tip}
+              onSelection={(p) => {
+                dismiss()
+                onSelection(p)
+              }}
+              select={select}
+            />
+          }
+        >
+          <HStack>
+            <Image
+              systemName="folder.fill"
+              foregroundStyle={"accentColor"}
+            />
+            <Text>{Path.basename(f)}</Text>
+          </HStack>
+        </NavigationLink>
+      ))}
+      {files.map((f) => (
+        <HStack
+          contentShape={"rect"}
+          onTapGesture={() => {
+            dismiss()
+            onSelection(f)
+          }}
+          disabled={select === "folder"}
+        >
+          <Image
+            systemName="doc.fill"
+            foregroundStyle={"accentColor"}
+          />
+          <Text>{Path.basename(f)}</Text>
+          <Spacer />
+        </HStack>
+      ))}
+    </List>
   )
 }
 
@@ -338,7 +362,7 @@ function UpdateSection({
     await installDownloadedScript()
     await cleanFiles()
     setUpdating(false)
-    onUpdated(newVersions[newVersions.length-1].version)
+    onUpdated(newVersions[newVersions.length - 1].version)
   }, [newVersions])
   const checkForUpdate = useCallback(async (interval: UpdateCheckInterval) => {
     setCheckingForUpdate(true)
@@ -390,11 +414,18 @@ function UpdateSection({
               foregroundStyle="systemYellow"
             />
           ) : (
-            <VStack foregroundStyle="label">
-              <Text>
+            <VStack
+              foregroundStyle="secondaryLabel"
+              alignment={"trailing"}
+            >
+              <Text
+                font={"caption"}
+              >
                 {versionCache ? new Date(versionCache.lastChecked).toLocaleString() : "never"}
               </Text>
-              <Text font={12}>Last checked</Text>
+              <Text
+                font={"caption2"}
+              >Last checked</Text>
             </VStack>
           )}
         </HStack>
@@ -430,7 +461,7 @@ function UpdateFinished({ version }: { version: string }) {
   return (
     <ContentUnavailableView
       systemImage="sparkles"
-      title={"Update " + version + " installed!"}
+      title={"Update to " + version + " installed!"}
       description="Please close this script, rebuild all scripts (in the settings of Scripting) and start this script again to use the new version."
       background="secondarySystemBackground"
     />
@@ -438,7 +469,9 @@ function UpdateFinished({ version }: { version: string }) {
 }
 
 async function run() {
-  await Navigation.present(<MainView />)
+  await Navigation.present(
+    <MainView />
+  )
   Script.exit()
 }
 
