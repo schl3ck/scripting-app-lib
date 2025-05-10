@@ -4,7 +4,7 @@ This repo contains libraries to use with the [Scripting app](https://apps.apple.
 
 This Script copies the libraries via symbolic links to your own Scripts so whenever the libraries are changed, they are also automatically updated wherever they are used.
 
-> Note: Currently it seems that when the linked file is changed then the link is broken and the original file is not updated. Strangely the iOS Files app still says that it is a symbolic link.
+> Note: Currently (app version 2.2.0) it seems that when the linked file is changed then the link is broken and the original file is not updated.
 
 Each library lives in its own folder together with a module that should have a function to preview the library (so far called "test"). Each library module should contain all the logic it needs. (Since I have broken this rule already myself in [/Widget](/Widget) I will add a system that checks for dependencies and will also link them.)
 
