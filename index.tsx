@@ -67,6 +67,26 @@ function MainView() {
   const parentFolder = Path.normalize(Path.join(Script.directory, ".."))
   const [updatedToVersion, setUpdatedToVersion] = useState<string>()
 
+  const linkFile = useCallback(async () => {
+    const destination = Path.join(to, Path.basename(from))
+    if (await FileManager.exists(destination)) {
+      if (
+        !(await Dialog.confirm({
+          title: "File exists",
+          message: `Overwrite file "${destination.replace(parentFolder + "/", "")}"`,
+          cancelLabel: "Cancel",
+          confirmLabel: "Overwrite",
+        }))
+      ) {
+        return
+      }
+      await FileManager.remove(destination)
+    }
+    await FileManager.createLink(destination, from)
+    setLinkCreated(true)
+    setTimeout(() => setLinkCreated(false), 1500)
+  }, [from, to])
+
   return (
     <NavigationStack>
       <List
@@ -168,11 +188,7 @@ function MainView() {
         <Section>
           <Button
             multilineTextAlignment={"center"}
-            action={() => {
-              FileManager.createLinkSync(Path.join(to, Path.basename(from)), from)
-              setLinkCreated(true)
-              setTimeout(() => setLinkCreated(false), 1000)
-            }}
+            action={linkFile}
             disabled={!from || !to}
           >
             <Text>Create Link</Text>
