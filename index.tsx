@@ -1,5 +1,6 @@
 import {
   Button,
+  ColorStringHex,
   ContentUnavailableView,
   EmptyView,
   HStack,
@@ -64,7 +65,6 @@ function MainView() {
   const [to, setTo] = useState("")
   const dismiss = Navigation.useDismiss()
   const [linkCreated, setLinkCreated] = useState(false)
-  const parentFolder = Path.normalize(Path.join(Script.directory, ".."))
   const [updatedToVersion, setUpdatedToVersion] = useState<string>()
 
   const linkFile = useCallback(async () => {
@@ -73,7 +73,10 @@ function MainView() {
       if (
         !(await Dialog.confirm({
           title: "File exists",
-          message: `Overwrite file "${destination.replace(parentFolder + "/", "")}"`,
+          message: `Overwrite file "${destination.replace(
+            FileManager.scriptsDirectory + "/",
+            "",
+          )}"`,
           cancelLabel: "Cancel",
           confirmLabel: "Overwrite",
         }))
@@ -159,7 +162,7 @@ function MainView() {
               Navigation.present(
                 <Folder
                   key={"targetDestination"}
-                  path={parentFolder}
+                  path={FileManager.scriptsDirectory}
                   select="folder"
                   onSelection={(p, dismiss) => {
                     setTo(p)
@@ -176,7 +179,7 @@ function MainView() {
               foregroundStyle={"secondaryLabel"}
               font={"callout"}
             >
-              {to.replace(parentFolder + "/", "")}
+              {to.replace(FileManager.scriptsDirectory + "/", "")}
             </Text>
             <Image
               systemName="chevron.right"
@@ -268,6 +271,21 @@ function Folder({
     }
   }, [content])
 
+  const scriptIcons: Record<string, { icon: string; color: ColorStringHex }> | undefined =
+    useMemo(() => {
+      if (path !== FileManager.scriptsDirectory) {
+        return undefined
+      }
+      return Object.fromEntries(
+        folders
+          .filter((folder) => FileManager.existsSync(Path.join(folder, "script.json")))
+          .map((folder) => [
+            Path.basename(folder),
+            JSON.parse(FileManager.readAsStringSync(Path.join(folder, "script.json"), "utf-8")),
+          ]),
+      )
+    }, [path, folders])
+
   return (
     <NavigationStack>
       <List
@@ -349,7 +367,19 @@ function Folder({
             }
           >
             <HStack>
-              <Image systemName="folder.fill" />
+              {scriptIcons ? (
+                <Image
+                  padding={5}
+                  systemName={scriptIcons[Path.basename(f)].icon}
+                  background={scriptIcons[Path.basename(f)].color}
+                  clipShape={{
+                    type: "rect",
+                    cornerRadius: 5,
+                  }}
+                />
+              ) : (
+                <Image systemName="folder.fill" />
+              )}
               <Text>{Path.basename(f)}</Text>
             </HStack>
           </NavigationLink>
