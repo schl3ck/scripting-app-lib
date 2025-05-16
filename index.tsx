@@ -420,11 +420,14 @@ function UpdateSection({ onUpdated }: { onUpdated: (version: string) => void }) 
               foregroundStyle="systemYellow"
             />
           ) : (
-            <VStack foregroundStyle="label">
-              <Text>
+            <VStack
+              foregroundStyle="label"
+              alignment={"trailing"}
+            >
+              <Text font={"caption"}>
                 {versionCache ? new Date(versionCache.lastChecked).toLocaleString() : "never"}
               </Text>
-              <Text font={12}>Last checked</Text>
+              <Text font={"caption2"}>Last checked</Text>
             </VStack>
           )}
         </HStack>
@@ -460,7 +463,7 @@ function UpdateFinished({ version }: { version: string }) {
   return (
     <ContentUnavailableView
       systemImage="sparkles"
-      title={"Update " + version + " installed!"}
+      title={`Update to ${version} installed!`}
       description="Please close this script, rebuild all scripts (in the settings of Scripting) and start this script again to use the new version."
       background="secondarySystemBackground"
     />
