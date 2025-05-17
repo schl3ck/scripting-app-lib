@@ -168,7 +168,7 @@ function MainView() {
                     setTo(p)
                     dismiss()
                   }}
-                  cancel={dismiss}
+                  cancel={(dismiss) => dismiss()}
                 />,
               )
             }}
