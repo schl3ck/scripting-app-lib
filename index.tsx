@@ -39,7 +39,7 @@ import {
 } from "./ScriptUpdater/scriptUpdater"
 
 const versionsUrl = "https://github.com/schl3ck/scripting-app-lib/releases"
-const currentVersion = "1.5"
+const currentVersion = "1.5.1"
 
 function Tests() {
   return (
