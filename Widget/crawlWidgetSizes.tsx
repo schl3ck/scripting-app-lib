@@ -221,7 +221,7 @@ function getTableContent(table) {
     )
 }
 
-get()
+return get()
 `)
   wv.dispose()
   if ("error" in table) return table
