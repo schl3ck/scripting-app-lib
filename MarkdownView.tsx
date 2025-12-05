@@ -11,13 +11,16 @@ import {
   useState,
 } from "scripting"
 
-const readme = Path.join(Script.directory, "ScriptUpdater/readme.md")
-
-export function ScriptUpdaterDescription() {
+export function MarkdownView({ title, file }: { title: string, file: string }) {
   const [content, setContent] = useState<string>()
 
   const loadContent = useCallback(async () => {
-    setContent(await FileManager.readAsString(readme, "utf-8"))
+    setContent(
+      await FileManager.readAsString(
+        Path.join(Script.directory, file),
+        "utf-8",
+      ),
+    )
   }, [])
   useEffect(() => {
     loadContent()
@@ -26,11 +29,16 @@ export function ScriptUpdaterDescription() {
   return (
     <NavigationStack>
       <ScrollView
-        navigationTitle={"ScriptUpdater"}
+        navigationTitle={title}
         navigationBarTitleDisplayMode={"large"}
-        overlay={content ? <EmptyView /> : <ProgressView progressViewStyle={"circular"} />}
+        overlay={
+          content ? undefined : <ProgressView progressViewStyle={"circular"} />
+        }
       >
-        <Markdown padding content={content ?? ""} />
+        <Markdown
+          padding
+          content={content ?? ""}
+        />
       </ScrollView>
     </NavigationStack>
   )
