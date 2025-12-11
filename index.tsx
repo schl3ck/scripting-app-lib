@@ -38,8 +38,8 @@ import {
   UpdateCheckInterval,
 } from "./ScriptUpdater/scriptUpdater"
 
-const versionsUrl = "https://github.com/schl3ck/scripting-app-lib/releases"
-const currentVersion = "1.5.1"
+const versionsUrl = Script.metadata.remoteResource?.url + "/releases"
+const currentVersion = Script.metadata.version
 
 function Tests() {
   return (

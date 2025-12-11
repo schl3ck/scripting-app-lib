@@ -1,1 +1,30 @@
-{"icon":"books.vertical","color":"#34C759","intentInputTypes":[],"runInApp":false,"name":"libs"}
+{
+  "color" : "#34C759",
+  "contributors" : [
+
+  ],
+  "icon" : "books.vertical",
+  "description" : "",
+  "name" : "libs",
+  "runInApp" : false,
+  "localizedNames" : {
+
+  },
+  "author" : {
+    "name" : "schl3ck",
+    "homepage" : "https:\/\/github.com\/schl3ck",
+    "email" : "schleck2@gmx.at"
+  },
+  "intentInputTypes" : [
+
+  ],
+  "version" : "1.5.2",
+  "remoteResource" : {
+    "url" : "https:\/\/github.com\/schl3ck\/scripting-app-lib",
+    "hash" : "D1DEC590-2D83-4DA9-8BA5-40DFDF0ADC8C",
+    "autoUpdateInterval" : null
+  },
+  "localizedDescriptions" : {
+
+  }
+}
